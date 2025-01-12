@@ -22,7 +22,7 @@
                     <MenuItem text="identity" />
                     <MenuItem text="treshold" />
                     <MenuItem text="OldStyleFilter" />
-                    <MenuItem text="BW filter" />
+                    <MenuItem text="BW filter" onAction="#onBlackAndWhiteImage"/>
                     <MenuItem text="Colorizer" />
                 </items>
             </Menu>
