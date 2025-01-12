@@ -17,7 +17,7 @@
             </Menu>
             <Menu text="Filters">
                 <items>
-                    <MenuItem text="negative" />
+                    <MenuItem text="negative" onAction="#onNegativeImage"/>
                     <MenuItem text="Pixelizer" />
                     <MenuItem text="identity" />
                     <MenuItem text="treshold" />
