@@ -3,23 +3,21 @@ package com.example.demo5;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+
 public class MainApplication extends Application {
-
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("main-view.fxml"));
-        BorderPane root = loader.load();
-        Scene scene = new Scene(root);
-
-        primaryStage.setTitle("Image Editor");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+    public void start(Stage stage) throws IOException {
+        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("main-view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+        stage.setTitle("Image Editor");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void main(String[] args) {
-        launch(args);
+        launch();
     }
 }
