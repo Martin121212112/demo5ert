@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" prefHeight="600.0" prefWidth="900.0">
+    <!-- Menu Bar -->
+    <top>
+        <MenuBar>
+            <menus>
+                <Menu text="File" />
+                <Menu text="Filters" />
+                <Menu text="About" />
+                <Menu text="Exit" />
+            </menus>
+        </MenuBar>
+    </top>
+
+    <!-- Center Panel -->
+    <center>
+        <VBox spacing="10.0" alignment="CENTER" BorderPane.alignment="CENTER">
+            <!-- Image View -->
+            <ImageView fx:id="imageView" fitHeight="400.0" fitWidth="600.0" preserveRatio="true"
+                       style="-fx-background-color: black; -fx-border-color: gray;" />
+            <!-- Console Log -->
+            <TextArea fx:id="consoleLog" prefHeight="100.0" editable="false">
+                <text>Loaded 8 filters.&#10;Application started successfully.</text>
+            </TextArea>
+        </VBox>
+    </center>
+
+    <!-- Right Panel -->
+    <right>
+        <VBox alignment="TOP_CENTER" spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+                <Button text="Select Image File" fx:id="selectImageButton" />
+                <Button text="Edit Matrix" fx:id="editMatrixButton" />
+                <Button text="Apply Matrix Filter" fx:id="applyMatrixFilterButton" />
+                <Button text="Generate Image" fx:id="generateImageButton" />
+                <Button text="Restore Original Image" fx:id="restoreOriginalButton" />
+                <RadioButton text="Original Image" fx:id="originalImageRadio" toggleGroup="$toggleGroup" />
+                <RadioButton text="Modified Image" fx:id="modifiedImageRadio" toggleGroup="$toggleGroup" />
+            </children>
+            <padding>
+                <Insets top="10.0" right="10.0" bottom="10.0" left="10.0" />
+            </padding>
+        </VBox>
+    </right>
+</BorderPane>
