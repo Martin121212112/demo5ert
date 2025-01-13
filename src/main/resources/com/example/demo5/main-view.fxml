@@ -17,16 +17,16 @@
             </Menu>
             <Menu text="Filters">
                 <items>
-                    <MenuItem text="negative" onAction="#onNegativeImage"/>
+                    <MenuItem onAction="#onNegativeImage" text="negative" />
                     <MenuItem text="Pixelizer" />
                     <MenuItem text="identity" />
                     <MenuItem text="treshold" />
                     <MenuItem text="OldStyleFilter" />
-                    <MenuItem text="BW filter" onAction="#onBlackAndWhiteImage"/>
+                    <MenuItem onAction="#onBlackAndWhiteImage" text="BW filter" />
                     <MenuItem text="Colorizer" />
                 </items>
             </Menu>
-            <Menu text="About">
+            <Menu onAction="#showAboutDialog" text="About">
                 <items>
                     <MenuItem text="About" />
                 </items></Menu>

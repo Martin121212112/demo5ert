@@ -16,6 +16,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+
 public class MainController {
     @FXML
     private ToggleGroup imageToggleGroup;
@@ -198,6 +201,12 @@ public class MainController {
         // Nastavení negativního obrázku do ImageView
         imageView.setImage(negativeImage);
         System.out.println("Applied Negative Filter.");
+    }
+    public void showAboutDialog() {
+        Alert alert = new Alert(AlertType.NONE);
+        alert.setTitle("About");
+        alert.setContentText("Aplikace malovani");
+        alert.showAndWait();
     }
 
     /**
