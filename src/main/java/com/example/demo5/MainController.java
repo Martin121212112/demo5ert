@@ -3,6 +3,7 @@ package com.example.demo5;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -37,6 +38,15 @@ public class MainController {
 
     private BufferedImage img;
 
+    @FXML
+    private TextArea outputTextArea;
+
+
+    private void logToTextArea(String message) {
+            String currentText = outputTextArea.getText();
+            outputTextArea.setText((currentText == null ? "" : currentText + "\n") + message);
+
+    }
     /**
      * Opens an image file and displays it in the ImageView.
      */
@@ -69,7 +79,7 @@ public class MainController {
 
         // Nastavení černobílého obrázku do ImageView
         imageView.setImage(blackAndWhiteImage);
-        System.out.println("Applied Black and White Filter.");
+        logToTextArea("Applied Black and White Filter.");
     }
 
     @FXML
@@ -139,7 +149,7 @@ public class MainController {
 
         // Nastavení generovaného obrázku do ImageView
         imageView.setImage(chessboardImage);
-        System.out.println("Generated chessboard with random colors and cell size: " + cellSize);
+        logToTextArea("Generated chessboard with random colors and cell size: " + cellSize);
     }
 
     /**

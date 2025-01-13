@@ -6,10 +6,11 @@
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <VBox xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo5.MainController">
    <BorderPane prefHeight="200.0" prefWidth="200.0">
@@ -56,13 +57,16 @@
                <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Edit Matrix" />
                <ImageView fitHeight="96.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
                <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" />
-               <TextField maxWidth="-Infinity" prefHeight="168.0" prefWidth="146.0">
+               <TextArea fx:id="outputTextArea" editable="false" maxWidth="-Infinity" minHeight="168.0" minWidth="146.0" prefHeight="168.0" prefWidth="150.0">
                   <padding>
-                     <Insets right="10.0" top="10.0" />
+                     <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                   </padding>
-               </TextField>
+                  <font>
+                     <Font size="8.0" />
+                  </font>
+               </TextArea>
                <Button mnemonicParsing="false" onAction="#onGenerateRandomImage" prefHeight="47.0" prefWidth="150.0" text="Generate Image" />
-               <Button mnemonicParsing="false" prefHeight="47.0" prefWidth="150.0" text="Restoore Original Image" />
+               <Button mnemonicParsing="false" prefHeight="47.0" prefWidth="150.0" text="Restore Original Image" />
                <RadioButton mnemonicParsing="false" text="Original Image" />
                <RadioButton mnemonicParsing="false" text="Modified Image" />
             </children>
