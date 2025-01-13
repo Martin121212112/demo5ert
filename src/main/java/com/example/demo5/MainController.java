@@ -1,5 +1,6 @@
 package com.example.demo5;
 
+
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToggleGroup;
@@ -10,6 +11,8 @@ import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import java.util.Random;
+
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -99,6 +102,45 @@ public class MainController {
         }
     }
 
+    @FXML
+    public void onGenerateRandomImage() {
+        // Rozměry obrázku
+        int width = 400; // Šířka obrázku
+        int height = 400; // Výška obrázku
+
+        // Náhodná velikost políčka (minimální a maximální velikost)
+        int minCellSize = 20; // Minimální velikost políčka
+        int maxCellSize = 100; // Maximální velikost políčka
+        int cellSize = (int) (Math.random() * (maxCellSize - minCellSize + 1) + minCellSize);
+
+        // Náhodné barvy pro šachovnici
+        Color color1 = new Color(Math.random(), Math.random(), Math.random(), 1.0); // Náhodná barva 1
+        Color color2 = new Color(Math.random(), Math.random(), Math.random(), 1.0); // Náhodná barva 2
+
+        // Vytvoření WritableImage
+        WritableImage chessboardImage = new WritableImage(width, height);
+        PixelWriter pixelWriter = chessboardImage.getPixelWriter();
+
+        // Generování šachovnice
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Výpočet aktuální buňky (řádek a sloupec)
+                int cellX = x / cellSize;
+                int cellY = y / cellSize;
+
+                // Střídání barev podle souřadnic buňky
+                boolean isColor1 = (cellX + cellY) % 2 == 0; // Střídání barev
+                Color color = isColor1 ? color1 : color2;
+
+                // Nastavení barvy pixelu
+                pixelWriter.setColor(x, y, color);
+            }
+        }
+
+        // Nastavení generovaného obrázku do ImageView
+        imageView.setImage(chessboardImage);
+        System.out.println("Generated chessboard with random colors and cell size: " + cellSize);
+    }
 
     /**
      * Saves the currently loaded image to a file.

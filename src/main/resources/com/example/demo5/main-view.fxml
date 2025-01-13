@@ -1,40 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
 <VBox xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo5.MainController">
-    <MenuBar>
-        <menus>
-            <Menu text="File">
-                <items>
-                    <MenuItem onAction="#onOpenImage" text="Load Image" />
-                    <MenuItem onAction="#onSaveImage" text="Save Image" />
-                </items>
-            </Menu>
-            <Menu text="Filters">
-                <items>
-                    <MenuItem text="negative" onAction="#onNegativeImage"/>
-                    <MenuItem text="Pixelizer" />
-                    <MenuItem text="identity" />
-                    <MenuItem text="treshold" />
-                    <MenuItem text="OldStyleFilter" />
-                    <MenuItem text="BW filter" onAction="#onBlackAndWhiteImage"/>
-                    <MenuItem text="Colorizer" />
-                </items>
-            </Menu>
-            <Menu text="About">
-                <items>
-                    <MenuItem text="About" />
-                </items></Menu>
-            <Menu onAction="#onExit" onMenuValidation="#onExit" text="Exit">
-                <items>
-                    <MenuItem onAction="#onExit" text="Vinette" />
-                </items></Menu>
-        </menus>
-    </MenuBar>
-    <ImageView fx:id="imageView" fitHeight="600" fitWidth="800" preserveRatio="true" />
+   <BorderPane prefHeight="200.0" prefWidth="200.0">
+      <top>
+         <MenuBar BorderPane.alignment="CENTER">
+            <menus>
+               <Menu text="File">
+                  <items>
+                     <MenuItem onAction="#onOpenImage" text="Load Image" />
+                     <MenuItem onAction="#onSaveImage" text="Save Image" />
+                  </items>
+               </Menu>
+               <Menu text="Filters">
+                  <items>
+                     <MenuItem onAction="#onNegativeImage" text="negative" />
+                     <MenuItem text="Pixelizer" />
+                     <MenuItem text="identity" />
+                     <MenuItem text="treshold" />
+                     <MenuItem text="OldStyleFilter" />
+                     <MenuItem onAction="#onBlackAndWhiteImage" text="BW filter" />
+                     <MenuItem text="Colorizer" />
+                  </items>
+               </Menu>
+               <Menu onMenuValidation="#onExit" text="About">
+                  <items>
+                     <MenuItem onAction="#onExit" text="Vinette" />
+                  </items>
+               </Menu>
+               <Menu onAction="#onExit" onMenuValidation="#onExit" text="Exit">
+                  <items>
+                     <MenuItem onAction="#onExit" text="Vinette" />
+                  </items>
+               </Menu>
+            </menus>
+         </MenuBar>
+      </top>
+      <center>
+         <ImageView fx:id="imageView" fitHeight="600" fitWidth="615.0" preserveRatio="true" BorderPane.alignment="CENTER" />
+      </center>
+      <right>
+         <VBox alignment="TOP_CENTER" layoutY="10.0" prefHeight="600.0" prefWidth="171.0" spacing="10.0" BorderPane.alignment="CENTER">
+            <children>
+               <Button mnemonicParsing="false" onAction="#onOpenImage" prefHeight="26.0" prefWidth="150.0" text="Select Image" />
+               <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Edit Matrix" />
+               <ImageView fitHeight="96.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
+               <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" />
+               <TextField maxWidth="-Infinity" prefHeight="168.0" prefWidth="146.0">
+                  <padding>
+                     <Insets right="10.0" top="10.0" />
+                  </padding>
+               </TextField>
+               <Button mnemonicParsing="false" onAction="#onGenerateRandomImage" prefHeight="47.0" prefWidth="150.0" text="Generate Image" />
+               <Button mnemonicParsing="false" prefHeight="47.0" prefWidth="150.0" text="Restoore Original Image" />
+               <RadioButton mnemonicParsing="false" text="Original Image" />
+               <RadioButton mnemonicParsing="false" text="Modified Image" />
+            </children>
+            <BorderPane.margin>
+               <Insets />
+            </BorderPane.margin>
+            <padding>
+               <Insets bottom="10.0" top="10.0" />
+            </padding>
+         </VBox>
+      </right>
+   </BorderPane>
 </VBox>
