@@ -37,6 +37,9 @@ public class MatrixDialog {
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Spinner<Integer> spinner = new Spinner<>(-100, 100, 0);
+                spinner.setPrefWidth(50);
+                spinner.setMaxWidth(50);
+
                 spinner.setEditable(true);
                 spinners.add(spinner);
                 gridPane.add(spinner, col, row);

@@ -26,7 +26,6 @@
                     </Menu>
                     <Menu text="Filters">
                         <items>
-                            <MenuItem onAction="#onNegativeImage" text="negative" />
                             <MenuItem text="Pixelizer" />
                             <MenuItem text="identity" />
                             <MenuItem text="treshold" />
@@ -35,16 +34,14 @@
                             <MenuItem text="Colorizer" />
                         </items>
                     </Menu>
-                    <Menu onMenuValidation="#showAboutDialog" text="About">
-                        <items>
-                            <MenuItem onAction="#onExit" text="Vinette" />
-                        </items>
-                    </Menu>
-                    <Menu onAction="#onExit" onMenuValidation="#onExit" text="Exit">
-                        <items>
-                            <MenuItem onAction="#onExit" text="Vinette" />
-                        </items>
-                    </Menu>
+                    <Menu onShown="#showAboutDialog" text="About">
+                  <items>
+                            <MenuItem text="nikdytoneuvidis" />
+                  </items></Menu>
+                    <Menu onShown="#onExit" text="Exit">
+                  <items>
+                     <MenuItem text="nikdytoneuvidis" />
+                  </items></Menu>
                 </menus>
             </MenuBar>
         </top>
