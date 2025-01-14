@@ -6,21 +6,31 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
+import org.w3c.dom.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MatrixDialog {
 
-    private final int size; // Size of the matrix (e.g., 10x10)
+    private final int size;
     private final List<Spinner<Integer>> spinners = new ArrayList<>();
-    private double normalizationCoefficient = 1.0; // Normalization coefficient
-    private double matrixSum = 0.0;
+    private double[][] savedMatrix;
+    private static final String DEFAULT_FILE_NAME = "matrix.xml";
 
     public MatrixDialog(int size) {
         this.size = size;
+        this.savedMatrix = new double[size][size]; // Inicializace prázdné matice
     }
 
     public double[][] showAndWait() {
@@ -28,46 +38,41 @@ public class MatrixDialog {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle("Matrix Editor");
 
-        // Grid for spinners
+        // Grid pro matici
         GridPane gridPane = new GridPane();
         gridPane.setHgap(5);
         gridPane.setVgap(5);
 
-        // Populate the grid with spinners
         for (int row = 0; row < size; row++) {
             for (int col = 0; col < size; col++) {
                 Spinner<Integer> spinner = new Spinner<>(-100, 100, 0);
                 spinner.setPrefWidth(50);
-                spinner.setMaxWidth(50);
-
                 spinner.setEditable(true);
                 spinners.add(spinner);
                 gridPane.add(spinner, col, row);
             }
         }
 
-        // Normalization controls
-        CheckBox normalizationCheckBox = new CheckBox("Normalization / Coefficient");
-        Label coefficientLabel = new Label("0.0");
-        normalizationCheckBox.setOnAction(e -> updateNormalization(coefficientLabel));
-
-        // Buttons
+        // Tlačítka
         Button saveButton = new Button("Save Matrix");
         Button loadButton = new Button("Load Matrix");
-        Button clearButton = new Button("Clear Matrix");
+        Button applyButton = new Button("Apply Matrix Filter");
         Button okButton = new Button("OK");
         Button cancelButton = new Button("Cancel");
 
-        // Set button actions
+        // Akce tlačítek
         saveButton.setOnAction(e -> saveMatrixToFile());
         loadButton.setOnAction(e -> loadMatrixFromFile());
-        clearButton.setOnAction(e -> clearMatrix());
+        applyButton.setOnAction(e -> applyMatrixFilter());
+        okButton.setOnAction(e -> {
+            saveMatrixToMemory();
+            stage.close();
+        });
         cancelButton.setOnAction(e -> stage.close());
-        okButton.setOnAction(e -> stage.close()); // Return values handled later
 
         // Layout
-        VBox layout = new VBox(10, gridPane, normalizationCheckBox, coefficientLabel);
-        HBox buttonBox = new HBox(10, saveButton, loadButton, clearButton, okButton, cancelButton);
+        VBox layout = new VBox(10, gridPane);
+        HBox buttonBox = new HBox(10, saveButton, loadButton, applyButton, okButton, cancelButton);
         buttonBox.setPadding(new Insets(10));
         layout.getChildren().add(buttonBox);
 
@@ -75,38 +80,96 @@ public class MatrixDialog {
         stage.setScene(scene);
         stage.showAndWait();
 
-        // Return the matrix values
-        return getMatrixValues();
-    }
-
-    private void updateNormalization(Label coefficientLabel) {
-        // Calculate the sum of matrix values and update the normalization coefficient
-        matrixSum = spinners.stream().mapToDouble(spinner -> spinner.getValue()).sum();
-        normalizationCoefficient = matrixSum != 0 ? 1.0 / matrixSum : 0.0;
-        coefficientLabel.setText(String.format("Coefficient: %.3f", normalizationCoefficient));
+        return savedMatrix; // Vrátí aktuálně uloženou matici
     }
 
     private void saveMatrixToFile() {
-        // Implementation for saving the matrix to a file
-        // (e.g., use BufferedWriter and write each row of the matrix)
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Matrix");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML files", "*.xml"));
+        File file = fileChooser.showSaveDialog(null);
+
+        if (file != null) {
+            try {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.newDocument();
+
+                Element rootElement = doc.createElement("matrix");
+                doc.appendChild(rootElement);
+
+                for (int row = 0; row < size; row++) {
+                    Element rowElement = doc.createElement("row");
+                    for (int col = 0; col < size; col++) {
+                        Element cell = doc.createElement("cell");
+                        cell.appendChild(doc.createTextNode(String.valueOf(spinners.get(row * size + col).getValue())));
+                        rowElement.appendChild(cell);
+                    }
+                    rootElement.appendChild(rowElement);
+                }
+
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(file);
+                transformer.transform(source, result);
+
+                System.out.println("Matrix saved to " + file.getAbsolutePath());
+            } catch (ParserConfigurationException | TransformerException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void loadMatrixFromFile() {
-        // Implementation for loading the matrix from a file
-        // (e.g., read each line and set spinner values accordingly)
-    }
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Load Matrix");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XML files", "*.xml"));
+        File file = fileChooser.showOpenDialog(null);
 
-    private void clearMatrix() {
-        spinners.forEach(spinner -> spinner.getValueFactory().setValue(0));
-    }
+        if (file != null) {
+            try {
+                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                Document doc = dBuilder.parse(file);
 
-    private double[][] getMatrixValues() {
-        double[][] matrix = new double[size][size];
-        for (int row = 0; row < size; row++) {
-            for (int col = 0; col < size; col++) {
-                matrix[row][col] = spinners.get(row * size + col).getValue();
+                doc.getDocumentElement().normalize();
+                NodeList rowList = doc.getElementsByTagName("row");
+
+                for (int row = 0; row < rowList.getLength() && row < size; row++) {
+                    NodeList cellList = rowList.item(row).getChildNodes();
+                    for (int col = 0; col < cellList.getLength() && col < size; col++) {
+                        Node cell = cellList.item(col);
+                        int value = Integer.parseInt(cell.getTextContent());
+                        spinners.get(row * size + col).getValueFactory().setValue(value);
+                    }
+                }
+
+                System.out.println("Matrix loaded from " + file.getAbsolutePath());
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
-        return matrix;
+    }
+
+    private void applyMatrixFilter() {
+        saveMatrixToMemory();
+        System.out.println("Matrix filter applied with the following matrix:");
+        for (double[] row : savedMatrix) {
+            for (double cell : row) {
+                System.out.print(cell + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    private void saveMatrixToMemory() {
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                savedMatrix[row][col] = spinners.get(row * size + col).getValue();
+            }
+        }
+        System.out.println("Matrix saved to memory.");
     }
 }

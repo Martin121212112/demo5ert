@@ -35,6 +35,8 @@ public class MainController {
     @FXML
     private MenuItem menuSave;
 
+
+
     @FXML
     private MenuItem menuExit;
 
@@ -89,6 +91,7 @@ public class MainController {
             logToTextArea("No file selected.");
         }
     }
+
 
     /**
      * Saves the currently displayed image to a file.
@@ -220,6 +223,14 @@ public class MainController {
             logToTextArea("No original image available.");
         }
     }
+    @FXML
+    public void onRestoreOriginalImage(){
+        if (originalImage != null) {
+            imageView.setImage(originalImage);
+            logToTextArea("Original Image restored.");
+            originalImageRadioButton.setSelected(true);
+        }
+    }
 
     /**
      * Handles switching to the modified image.
@@ -237,7 +248,7 @@ public class MainController {
     public void onNegativeImage() {
         // Check if there's no image loaded
         if (imageView.getImage() == null) {
-            System.out.println("No image to apply negative filter!");
+            logToTextArea("No image to apply negative filter!");
             return;
         }
 
@@ -248,7 +259,7 @@ public class MainController {
 
         // Check for empty or invalid image dimensions
         if (width <= 0 || height <= 0) {
-            System.out.println("Invalid image dimensions!");
+            logToTextArea("Invalid image dimensions!");
             return;
         }
 
@@ -256,9 +267,6 @@ public class MainController {
         WritableImage negativeImage = new WritableImage(width, height);
         PixelReader pixelReader = image.getPixelReader();
         PixelWriter pixelWriter = negativeImage.getPixelWriter();
-
-        // Log the start of the processing
-        System.out.println("Applying negative filter to the image...");
 
         // Process each pixel in the image
         for (int y = 0; y < height; y++) {
@@ -285,73 +293,85 @@ public class MainController {
 
 
         // Log the completion of the processing
-        System.out.println("Negative filter applied successfully.");
+        logToTextArea("Negative filter applied successfully.");
     }
+
+
     public void showAboutDialog() {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("About");
-        alert.setHeaderText("Image Editor");
-        alert.setContentText("This is a simple image editor created using JavaFX.");
+        alert.setHeaderText("Tento program vytvořili s láskou Martin Čechovič, Miroslav Baláte a Matěj Kupec :)");
         alert.showAndWait();
     }
 
 
 
-    @FXML
-    public void onEditMatrix() {
-        // Show the matrix dialog
-        MatrixDialog matrixDialog = new MatrixDialog(10);
-        double[][] matrix = matrixDialog.showAndWait();
+    private double[][] currentMatrix; // Aktuální matice
 
-        // Apply the matrix as a filter if needed
-        if (matrix != null) {
-            applyMatrixFilter(matrix);
-        }
+    public void setMatrix(double[][] matrix) {
+        this.currentMatrix = matrix;
     }
 
-    private void applyMatrixFilter(double[][] matrix) {
+    @FXML
+    private void onApplyMatrixFilter() {
         if (imageView.getImage() == null) {
-            logToTextArea("No image to apply matrix filter!");
+            System.out.println("No image loaded to apply the matrix filter.");
             return;
         }
 
-        int width = (int) imageView.getImage().getWidth();
-        int height = (int) imageView.getImage().getHeight();
-        WritableImage filteredImage = new WritableImage(width, height);
-        PixelReader pixelReader = imageView.getImage().getPixelReader();
-        PixelWriter pixelWriter = filteredImage.getPixelWriter();
+        if (currentMatrix == null) {
+            System.out.println("No matrix defined. Please edit the matrix first.");
+            return;
+        }
 
-        int matrixSize = matrix.length;
-        int offset = matrixSize / 2;
+        // Aplikace matice na obrázek
+        Image originalImage = imageView.getImage();
+        WritableImage filteredImage = applyMatrixFilter(originalImage, currentMatrix);
+        imageView.setImage(filteredImage);
 
-        // Convolution process
-        for (int y = offset; y < height - offset; y++) {
-            for (int x = offset; x < width - offset; x++) {
-                double r = 0, g = 0, b = 0;
+        System.out.println("Matrix filter applied.");
+    }
 
-                for (int i = 0; i < matrixSize; i++) {
-                    for (int j = 0; j < matrixSize; j++) {
-                        int imgX = x + j - offset;
-                        int imgY = y + i - offset;
+    private WritableImage applyMatrixFilter(Image image, double[][] matrix) {
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
+        WritableImage outputImage = new WritableImage(width, height);
 
-                        Color color = pixelReader.getColor(imgX, imgY);
-                        r += color.getRed() * matrix[i][j];
-                        g += color.getGreen() * matrix[i][j];
-                        b += color.getBlue() * matrix[i][j];
-                    }
-                }
+        PixelWriter writer = outputImage.getPixelWriter();
+        image.getPixelReader().getPixels(0, 0, width, height, javafx.scene.image.PixelFormat.getIntArgbPreInstance(), new int[width * height], 0, width);
 
-                // Normalize and clamp colors
-                r = Math.min(Math.max(r, 0), 1);
-                g = Math.min(Math.max(g, 0), 1);
-                b = Math.min(Math.max(b, 0), 1);
+        // Prozatím jednoduchý příklad, jak aplikovat matici na obrázek
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                // Zde by měla být logika pro aplikaci matice
+                // Například použijeme jednoduchý násobek každého pixelu podle první hodnoty matice
+                int argb = image.getPixelReader().getArgb(x, y);
+                int alpha = (argb >> 24) & 0xff;
+                int red = (argb >> 16) & 0xff;
+                int green = (argb >> 8) & 0xff;
+                int blue = argb & 0xff;
 
-                pixelWriter.setColor(x, y, new Color(r, g, b, 1.0));
+                // Příklad: aplikujeme první hodnotu matice jako jednoduchý filtr
+                double factor = matrix[0][0];
+                red = (int) Math.min(255, red * factor);
+                green = (int) Math.min(255, green * factor);
+                blue = (int) Math.min(255, blue * factor);
+
+                writer.setArgb(x, y, (alpha << 24) | (red << 16) | (green << 8) | blue);
             }
         }
 
-        imageView.setImage(filteredImage);
-        logToTextArea("Applied matrix filter.");
+        return outputImage;
+    }
+
+    @FXML
+    private void onEditMatrix() {
+        MatrixDialog matrixDialog = new MatrixDialog(3); // 3x3 matice
+        double[][] editedMatrix = matrixDialog.showAndWait();
+        if (editedMatrix != null) {
+            setMatrix(editedMatrix);
+            System.out.println("Matrix updated.");
+        }
     }
 
     @FXML

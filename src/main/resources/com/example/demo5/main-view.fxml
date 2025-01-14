@@ -32,6 +32,7 @@
                             <MenuItem text="OldStyleFilter" />
                             <MenuItem onAction="#onBlackAndWhiteImage" text="BW filter" />
                             <MenuItem text="Colorizer" />
+                     <MenuItem onAction="#onNegativeImage" text="negative" />
                         </items>
                     </Menu>
                     <Menu onShown="#showAboutDialog" text="About">
@@ -55,7 +56,7 @@
                     <Button mnemonicParsing="false" onAction="#onEditMatrix" prefHeight="26.0" prefWidth="150.0" text="Edit Matrix" />
 
                     <ImageView fitHeight="96.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
-                    <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" />
+                    <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" onAction="#onApplyMatrixFilter" />
                     <TextArea fx:id="outputTextArea" editable="false" maxWidth="-Infinity" minHeight="168.0" minWidth="146.0" prefHeight="168.0" prefWidth="150.0">
                         <padding>
                             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
@@ -65,7 +66,7 @@
                         </font>
                     </TextArea>
                     <Button mnemonicParsing="false" onAction="#onGenerateRandomImage" prefHeight="47.0" prefWidth="150.0" text="Generate Image" />
-                    <Button mnemonicParsing="false" prefHeight="47.0" prefWidth="150.0" text="Restore Original Image" />
+                    <Button mnemonicParsing="false" onAction="#onRestoreOriginalImage" prefHeight="47.0" prefWidth="150.0" text="Restore Original Image" />
                     <RadioButton fx:id="originalImageRadioButton" mnemonicParsing="false" onAction="#onOriginalImageSelected" text="Original Image">
                         <toggleGroup>
                             <ToggleGroup fx:id="imageToggleGroup" />
