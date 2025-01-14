@@ -288,9 +288,10 @@ public class MainController {
         System.out.println("Negative filter applied successfully.");
     }
     public void showAboutDialog() {
-        Alert alert = new Alert(AlertType.NONE);
+        Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("About");
-        alert.setContentText("Aplikace malovani");
+        alert.setHeaderText("Image Editor");
+        alert.setContentText("This is a simple image editor created using JavaFX.");
         alert.showAndWait();
     }
 
