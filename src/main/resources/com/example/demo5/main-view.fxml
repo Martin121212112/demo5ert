@@ -49,13 +49,14 @@
          </MenuBar>
       </top>
       <center>
-         <ImageView fx:id="imageView" fitHeight="600" fitWidth="615.0" preserveRatio="true" BorderPane.alignment="CENTER" />
+         <ImageView fx:id="imageView" fitHeight="580.0" fitWidth="580.0" preserveRatio="true" BorderPane.alignment="CENTER" />
       </center>
       <right>
          <VBox alignment="TOP_CENTER" layoutY="10.0" prefHeight="600.0" prefWidth="171.0" spacing="10.0" BorderPane.alignment="CENTER">
             <children>
                <Button mnemonicParsing="false" onAction="#onOpenImage" prefHeight="26.0" prefWidth="150.0" text="Select Image" />
-               <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Edit Matrix" />
+               <Button mnemonicParsing="false" onAction="#onEditMatrix" prefHeight="26.0" prefWidth="150.0" text="Edit Matrix" />
+
                <ImageView fitHeight="96.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
                <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" />
                <TextArea fx:id="outputTextArea" editable="false" maxWidth="-Infinity" minHeight="168.0" minWidth="146.0" prefHeight="168.0" prefWidth="150.0">

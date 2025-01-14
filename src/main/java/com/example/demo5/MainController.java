@@ -177,8 +177,8 @@ public class MainController {
      */
     @FXML
     public void onGenerateRandomImage() {
-        int width = 400;
-        int height = 400;
+        int width = 580;
+        int height = 580;
         int minCellSize = 20;
         int maxCellSize = 100;
         int cellSize = (int) (Math.random() * (maxCellSize - minCellSize + 1) + minCellSize);
@@ -285,9 +285,65 @@ public class MainController {
         System.out.println("Negative filter applied successfully.");
     }
 
-    /**
-     * Exits the application.
-     */
+
+
+    @FXML
+    public void onEditMatrix() {
+        // Show the matrix dialog
+        MatrixDialog matrixDialog = new MatrixDialog(10);
+        double[][] matrix = matrixDialog.showAndWait();
+
+        // Apply the matrix as a filter if needed
+        if (matrix != null) {
+            applyMatrixFilter(matrix);
+        }
+    }
+
+    private void applyMatrixFilter(double[][] matrix) {
+        if (imageView.getImage() == null) {
+            logToTextArea("No image to apply matrix filter!");
+            return;
+        }
+
+        int width = (int) imageView.getImage().getWidth();
+        int height = (int) imageView.getImage().getHeight();
+        WritableImage filteredImage = new WritableImage(width, height);
+        PixelReader pixelReader = imageView.getImage().getPixelReader();
+        PixelWriter pixelWriter = filteredImage.getPixelWriter();
+
+        int matrixSize = matrix.length;
+        int offset = matrixSize / 2;
+
+        // Convolution process
+        for (int y = offset; y < height - offset; y++) {
+            for (int x = offset; x < width - offset; x++) {
+                double r = 0, g = 0, b = 0;
+
+                for (int i = 0; i < matrixSize; i++) {
+                    for (int j = 0; j < matrixSize; j++) {
+                        int imgX = x + j - offset;
+                        int imgY = y + i - offset;
+
+                        Color color = pixelReader.getColor(imgX, imgY);
+                        r += color.getRed() * matrix[i][j];
+                        g += color.getGreen() * matrix[i][j];
+                        b += color.getBlue() * matrix[i][j];
+                    }
+                }
+
+                // Normalize and clamp colors
+                r = Math.min(Math.max(r, 0), 1);
+                g = Math.min(Math.max(g, 0), 1);
+                b = Math.min(Math.max(b, 0), 1);
+
+                pixelWriter.setColor(x, y, new Color(r, g, b, 1.0));
+            }
+        }
+
+        imageView.setImage(filteredImage);
+        logToTextArea("Applied matrix filter.");
+    }
+
     @FXML
     public void onExit() {
         System.exit(0);
