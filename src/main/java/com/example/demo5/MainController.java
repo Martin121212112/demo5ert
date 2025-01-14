@@ -1,13 +1,12 @@
 package com.example.demo5;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.image.PixelReader;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.image.WritableImage;
+import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
@@ -20,8 +19,15 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 public class MainController {
+
     @FXML
     private ToggleGroup imageToggleGroup;
+
+    @FXML
+    private RadioButton originalImageRadioButton;
+
+    @FXML
+    private RadioButton modifiedImageRadioButton;
 
     @FXML
     private MenuItem menuOpen;
@@ -35,48 +41,30 @@ public class MainController {
     @FXML
     private ImageView imageView;
 
-    private BufferedImage img;
+    @FXML
+    private TextArea outputTextArea;
+
+    private Image originalImage; // Stores the original image
+    private Image modifiedImage; // Stores the modified image
 
     /**
-     * Opens an image file and displays it in the ImageView.
+     * Logs messages to the text area, ensuring each message appears on a new line.
+     *
+     * @param message The message to log.
      */
-    @FXML
-    public void onBlackAndWhiteImage() {
-        if (imageView.getImage() == null) {
-            System.out.println("No image to apply black and white filter!");
-            return;
-        }
-
-        Image image = imageView.getImage();
-        int width = (int) image.getWidth();
-        int height = (int) image.getHeight();
-        WritableImage blackAndWhiteImage = new WritableImage(width, height);
-        PixelReader pixelReader = image.getPixelReader();
-        PixelWriter pixelWriter = blackAndWhiteImage.getPixelWriter();
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                Color color = pixelReader.getColor(x, y);
-
-                // Vypočítání průměru RGB hodnot pro černobílý efekt
-                double gray = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
-
-                // Nastavení pixelu na novou barvu (odstín šedi)
-                Color grayColor = new Color(gray, gray, gray, color.getOpacity());
-                pixelWriter.setColor(x, y, grayColor);
-            }
-        }
-
-        // Nastavení černobílého obrázku do ImageView
-        imageView.setImage(blackAndWhiteImage);
-        System.out.println("Applied Black and White Filter.");
+    private void logToTextArea(String message) {
+        String currentText = outputTextArea.getText();
+        outputTextArea.setText((currentText == null ? "" : currentText + "\n") + message);
     }
 
+    /**
+     * Opens an image file and displays it in the ImageView, storing it as the original image.
+     */
     @FXML
     public void onOpenImage() {
         FileChooser fileChooser = new FileChooser();
 
-        // Přidání filtrů souborů, aby uživatel viděl pouze obrázky
+        // Add filters to show only image files
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.jpeg", "*.bmp", "*.gif")
         );
@@ -84,63 +72,51 @@ public class MainController {
         File file = fileChooser.showOpenDialog(null);
         if (file != null) {
             try {
-                // Ověření, že soubor lze načíst jako obrázek
                 BufferedImage loadedImg = ImageIO.read(file);
                 if (loadedImg != null) {
-                    img = loadedImg;
-                    imageView.setImage(new Image(file.toURI().toString()));
-                    System.out.println("Image loaded: " + file.getAbsolutePath());
+                    originalImage = new Image(file.toURI().toString());
+                    modifiedImage = null; // Reset the modified image
+                    imageView.setImage(originalImage);
+                    originalImageRadioButton.setSelected(true);
+                    logToTextArea("Image loaded: " + file.getAbsolutePath());
                 } else {
-                    System.out.println("Selected file is not a valid image.");
+                    logToTextArea("Selected file is not a valid image.");
                 }
             } catch (IOException e) {
-                System.out.println("Error loading image: " + e.getMessage());
-                e.printStackTrace();
+                logToTextArea("Error loading image: " + e.getMessage());
             }
         } else {
-            System.out.println("No file selected.");
+            logToTextArea("No file selected.");
         }
     }
 
-
     /**
-     * Saves the currently loaded image to a file.
+     * Saves the currently displayed image to a file.
      */
+    @FXML
     public void onSaveImage() {
         if (imageView.getImage() == null) {
-            System.out.println("No image to save!");
+            logToTextArea("No image to save!");
             return;
         }
 
         FileChooser fileChooser = new FileChooser();
-
-        // Nastavení výchozího názvu souboru
         fileChooser.setInitialFileName("image.png");
-
-        // Přidání filtrů souborů (například pouze PNG)
-        fileChooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png")
-        );
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
 
         File file = fileChooser.showSaveDialog(null);
         if (file != null) {
-            // Ověření a přidání přípony .png, pokud chybí
             if (!file.getName().toLowerCase().endsWith(".png")) {
                 file = new File(file.getAbsolutePath() + ".png");
             }
 
             try {
-                // Získání aktuálního obrázku z ImageView
                 WritableImage writableImage = (WritableImage) imageView.getImage();
-
-                // Převod WritableImage na BufferedImage
                 BufferedImage bufferedImage = convertToBufferedImage(writableImage);
-
-                // Uložení obrázku do souboru
                 ImageIO.write(bufferedImage, "png", file);
-                System.out.println("Image saved to: " + file.getAbsolutePath());
+                logToTextArea("Image saved to: " + file.getAbsolutePath());
             } catch (IOException e) {
-                e.printStackTrace();
+                logToTextArea("Error saving image: " + e.getMessage());
             }
         }
     }
@@ -156,7 +132,7 @@ public class MainController {
 
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                javafx.scene.paint.Color fxColor = pixelReader.getColor(x, y);
+                Color fxColor = pixelReader.getColor(x, y);
                 int argb = ((int) (fxColor.getOpacity() * 255) << 24) |
                         ((int) (fxColor.getRed() * 255) << 16) |
                         ((int) (fxColor.getGreen() * 255) << 8) |
@@ -169,38 +145,147 @@ public class MainController {
     }
 
     /**
-     * Applies a negative filter to the currently displayed image.
+     * Applies a black-and-white filter to the original image.
      */
     @FXML
+    public void onBlackAndWhiteImage() {
+        if (originalImage == null) {
+            logToTextArea("No image to apply black and white filter!");
+            return;
+        }
+
+        int width = (int) originalImage.getWidth();
+        int height = (int) originalImage.getHeight();
+        WritableImage blackAndWhiteImage = new WritableImage(width, height);
+        PixelReader pixelReader = originalImage.getPixelReader();
+        PixelWriter pixelWriter = blackAndWhiteImage.getPixelWriter();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                Color color = pixelReader.getColor(x, y);
+                double gray = (color.getRed() + color.getGreen() + color.getBlue()) / 3;
+                Color grayColor = new Color(gray, gray, gray, color.getOpacity());
+                pixelWriter.setColor(x, y, grayColor);
+            }
+        }
+
+        modifiedImage = blackAndWhiteImage;
+        imageView.setImage(modifiedImage);
+        modifiedImageRadioButton.setSelected(true);
+        logToTextArea("Applied Black and White Filter.");
+    }
+
+    /**
+     * Generates a random chessboard pattern with random colors and cell size.
+     */
+    @FXML
+    public void onGenerateRandomImage() {
+        int width = 580;
+        int height = 580;
+        int minCellSize = 20;
+        int maxCellSize = 100;
+        int cellSize = (int) (Math.random() * (maxCellSize - minCellSize + 1) + minCellSize);
+
+        Color color1 = new Color(Math.random(), Math.random(), Math.random(), 1.0);
+        Color color2 = new Color(Math.random(), Math.random(), Math.random(), 1.0);
+
+        WritableImage chessboardImage = new WritableImage(width, height);
+        PixelWriter pixelWriter = chessboardImage.getPixelWriter();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                int cellX = x / cellSize;
+                int cellY = y / cellSize;
+                boolean isColor1 = (cellX + cellY) % 2 == 0;
+                Color color = isColor1 ? color1 : color2;
+                pixelWriter.setColor(x, y, color);
+            }
+        }
+
+        modifiedImage = chessboardImage;
+        imageView.setImage(modifiedImage);
+        modifiedImageRadioButton.setSelected(true);
+        logToTextArea("Generated chessboard with random colors and cell size: " + cellSize);
+    }
+
+    /**
+     * Handles switching to the original image.
+     */
+    @FXML
+    public void onOriginalImageSelected() {
+        if (originalImage != null) {
+            imageView.setImage(originalImage);
+            logToTextArea("Switched to Original Image.");
+        } else {
+            logToTextArea("No original image available.");
+        }
+    }
+
+    /**
+     * Handles switching to the modified image.
+     */
+    @FXML
+    public void onModifiedImageSelected() {
+        if (modifiedImage != null) {
+            imageView.setImage(modifiedImage);
+            logToTextArea("Switched to Modified Image.");
+        } else {
+            logToTextArea("No modified image available.");
+        }
+    }
+    @FXML
     public void onNegativeImage() {
+        // Check if there's no image loaded
         if (imageView.getImage() == null) {
             System.out.println("No image to apply negative filter!");
             return;
         }
 
+        // Get the image from the ImageView
         Image image = imageView.getImage();
         int width = (int) image.getWidth();
         int height = (int) image.getHeight();
+
+        // Check for empty or invalid image dimensions
+        if (width <= 0 || height <= 0) {
+            System.out.println("Invalid image dimensions!");
+            return;
+        }
+
+        // Create a writable image to store the negative version
         WritableImage negativeImage = new WritableImage(width, height);
         PixelReader pixelReader = image.getPixelReader();
         PixelWriter pixelWriter = negativeImage.getPixelWriter();
 
+        // Log the start of the processing
+        System.out.println("Applying negative filter to the image...");
+
+        // Process each pixel in the image
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
+                // Read the color of the current pixel
                 Color color = pixelReader.getColor(x, y);
-                Color negativeColor = new Color(
+
+                // Calculate the negative color
+                Color negativeColor = Color.color(
                         1.0 - color.getRed(),
                         1.0 - color.getGreen(),
                         1.0 - color.getBlue(),
-                        color.getOpacity()
+                        color.getOpacity() // Preserve the original opacity
                 );
+
+                // Write the negative color to the writable image
                 pixelWriter.setColor(x, y, negativeColor);
             }
         }
+        modifiedImage = negativeImage;
+        imageView.setImage(modifiedImage);
+        modifiedImageRadioButton.setSelected(true);
+        // Set the resulting negative image back to the ImageView
 
-        // Nastavení negativního obrázku do ImageView
-        imageView.setImage(negativeImage);
-        System.out.println("Applied Negative Filter.");
+
+        // Log the completion of the processing
+        System.out.println("Negative filter applied successfully.");
     }
     public void showAboutDialog() {
         Alert alert = new Alert(AlertType.NONE);
@@ -209,17 +294,65 @@ public class MainController {
         alert.showAndWait();
     }
 
-    /**
-     * Placeholder method for pixelating an image (not yet implemented).
-     */
+
+
     @FXML
-    public void onPixelazer() {
-        System.out.println("Pixelate functionality not yet implemented!");
+    public void onEditMatrix() {
+        // Show the matrix dialog
+        MatrixDialog matrixDialog = new MatrixDialog(10);
+        double[][] matrix = matrixDialog.showAndWait();
+
+        // Apply the matrix as a filter if needed
+        if (matrix != null) {
+            applyMatrixFilter(matrix);
+        }
     }
 
-    /**
-     * Exits the application.
-     */
+    private void applyMatrixFilter(double[][] matrix) {
+        if (imageView.getImage() == null) {
+            logToTextArea("No image to apply matrix filter!");
+            return;
+        }
+
+        int width = (int) imageView.getImage().getWidth();
+        int height = (int) imageView.getImage().getHeight();
+        WritableImage filteredImage = new WritableImage(width, height);
+        PixelReader pixelReader = imageView.getImage().getPixelReader();
+        PixelWriter pixelWriter = filteredImage.getPixelWriter();
+
+        int matrixSize = matrix.length;
+        int offset = matrixSize / 2;
+
+        // Convolution process
+        for (int y = offset; y < height - offset; y++) {
+            for (int x = offset; x < width - offset; x++) {
+                double r = 0, g = 0, b = 0;
+
+                for (int i = 0; i < matrixSize; i++) {
+                    for (int j = 0; j < matrixSize; j++) {
+                        int imgX = x + j - offset;
+                        int imgY = y + i - offset;
+
+                        Color color = pixelReader.getColor(imgX, imgY);
+                        r += color.getRed() * matrix[i][j];
+                        g += color.getGreen() * matrix[i][j];
+                        b += color.getBlue() * matrix[i][j];
+                    }
+                }
+
+                // Normalize and clamp colors
+                r = Math.min(Math.max(r, 0), 1);
+                g = Math.min(Math.max(g, 0), 1);
+                b = Math.min(Math.max(b, 0), 1);
+
+                pixelWriter.setColor(x, y, new Color(r, g, b, 1.0));
+            }
+        }
+
+        imageView.setImage(filteredImage);
+        logToTextArea("Applied matrix filter.");
+    }
+
     @FXML
     public void onExit() {
         System.exit(0);
