@@ -1,11 +1,10 @@
 package com.example.demo5;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.*;
-import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.scene.paint.Color;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.HBox;
@@ -25,25 +24,12 @@ import javafx.scene.control.Alert.AlertType;
 
 public class MainController {
 
-    @FXML
-    private ToggleGroup imageToggleGroup;
 
     @FXML
     private RadioButton originalImageRadioButton;
 
     @FXML
     private RadioButton modifiedImageRadioButton;
-
-    @FXML
-    private MenuItem menuOpen;
-
-    @FXML
-    private MenuItem menuSave;
-
-
-
-    @FXML
-    private MenuItem menuExit;
 
     @FXML
     private ImageView imageView;
