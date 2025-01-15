@@ -2,20 +2,25 @@ package com.example.demo5;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.geometry.Pos;
+
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
 public class MainController {
@@ -315,12 +320,12 @@ public class MainController {
     @FXML
     private void onApplyMatrixFilter() {
         if (imageView.getImage() == null) {
-            System.out.println("No image loaded to apply the matrix filter.");
+            logToTextArea("No image loaded to apply the matrix filter.");
             return;
         }
 
         if (currentMatrix == null) {
-            System.out.println("No matrix defined. Please edit the matrix first.");
+            logToTextArea("No matrix defined. Please edit the matrix first.");
             return;
         }
 
@@ -329,7 +334,7 @@ public class MainController {
         WritableImage filteredImage = applyMatrixFilter(originalImage, currentMatrix);
         imageView.setImage(filteredImage);
 
-        System.out.println("Matrix filter applied.");
+        logToTextArea("Matrix filter applied.");
     }
 
     private WritableImage applyMatrixFilter(Image image, double[][] matrix) {
@@ -370,7 +375,7 @@ public class MainController {
         double[][] editedMatrix = matrixDialog.showAndWait();
         if (editedMatrix != null) {
             setMatrix(editedMatrix);
-            System.out.println("Matrix updated.");
+            logToTextArea("Matrix updated.");
         }
     }
 
@@ -378,4 +383,203 @@ public class MainController {
     public void onExit() {
         System.exit(0);
     }
+
+    @FXML
+    private MenuItem menuPixelizer;
+
+    /**
+     * Spustí dialogové okno pro aplikaci filtru Pixelizer.
+     */
+    @FXML
+    private void onPixelizerFilter() {
+        if (imageView.getImage() == null) {
+            logToTextArea("No image loaded to apply Pixelizer filter!");
+            return;
+        }
+
+        // Původní obrázek
+        Image originalImage = imageView.getImage();
+
+        // Nastavení stage a layoutu
+        Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.setTitle("Pixelizer Filter");
+
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(10));
+        layout.setAlignment(Pos.CENTER);
+
+        // Vytvoření slideru
+        Slider slider = new Slider(1, 50, 10);
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+
+        // Náhledový obrázek zmenšený na 50x50 pixelů
+        ImageView previewImageView = new ImageView(originalImage);
+        previewImageView.setFitWidth(400);
+        previewImageView.setFitHeight(400);
+        previewImageView.setPreserveRatio(true);
+
+        // Aktualizace náhledu při posunu slideru
+        slider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            int pixelSize = newValue.intValue();
+            previewImageView.setImage(applyPixelizerFilter(originalImage, pixelSize));
+        });
+
+        // Tlačítka OK a Cancel
+        HBox buttons = new HBox(10);
+        buttons.setAlignment(Pos.CENTER);
+
+        Button okButton = new Button("OK");
+        okButton.setOnAction(e -> {
+            imageView.setImage(previewImageView.getImage());
+            modifiedImage = previewImageView.getImage();
+            dialog.close();
+        });
+
+        Button cancelButton = new Button("Cancel");
+        cancelButton.setOnAction(e -> dialog.close());
+
+        buttons.getChildren().addAll(okButton, cancelButton);
+
+        // Přidání komponent do layoutu
+        layout.getChildren().addAll(previewImageView, slider, buttons);
+
+        Scene scene = new Scene(layout);
+        dialog.setScene(scene);
+        dialog.showAndWait();
+        modifiedImageRadioButton.setSelected(true);
+    }
+
+    private Image applyPixelizerFilter(Image image, int pixelSize) {
+        int width = (int) image.getWidth();
+        int height = (int) image.getHeight();
+        WritableImage pixelizedImage = new WritableImage(width, height);
+        PixelReader pixelReader = image.getPixelReader();
+        PixelWriter pixelWriter = pixelizedImage.getPixelWriter();
+
+        for (int y = 0; y < height; y += pixelSize) {
+            for (int x = 0; x < width; x += pixelSize) {
+                // Průměrná barva pixelového bloku
+                Color color = pixelReader.getColor(x, y);
+                for (int dy = 0; dy < pixelSize; dy++) {
+                    for (int dx = 0; dx < pixelSize; dx++) {
+                        if (x + dx < width && y + dy < height) {
+                            pixelWriter.setColor(x + dx, y + dy, color);
+                        }
+                    }
+                }
+            }
+        }
+
+        return pixelizedImage;
+    }
+
+    @FXML
+    private void enableZoom() {
+        // Check if an image is loaded
+        if (imageView.getImage() == null) {
+            logToTextArea("No image loaded to apply zoom!");
+            return;
+        }
+
+        // Set initial scale
+        imageView.setScaleX(1.0);
+        imageView.setScaleY(1.0);
+
+        // Enable scroll zooming
+        imageView.setOnScroll(event -> {
+            double zoomFactor = 1.1; // Zoom factor
+            if (event.getDeltaY() > 0) {
+                // Zoom in
+                imageView.setScaleX(imageView.getScaleX() * zoomFactor);
+                imageView.setScaleY(imageView.getScaleY() * zoomFactor);
+            } else {
+                // Zoom out
+                imageView.setScaleX(imageView.getScaleX() / zoomFactor);
+                imageView.setScaleY(imageView.getScaleY() / zoomFactor);
+            }
+            event.consume(); // Prevent event propagation
+        });
+
+        logToTextArea("Zoom enabled for the image.");
+    }
+
+    @FXML
+    private void resetZoom() {
+        if (imageView.getImage() == null) {
+            logToTextArea("No image to reset zoom!");
+            return;
+        }
+
+        imageView.setScaleX(1.0);
+        imageView.setScaleY(1.0);
+
+        logToTextArea("Zoom reset to original size.");
+    }
+
+
+    @FXML
+    private void onCropImage() {
+        // Kontrola, jestli je načtený obrázek
+        if (imageView.getImage() == null) {
+            logToTextArea("No image loaded!");
+            return;
+        }
+
+        // Získání šířky
+        int cropWidth = getDimensionFromUser("Enter crop width:", (int) imageView.getImage().getWidth());
+        if (cropWidth <= 0) return;
+
+        // Získání výšky
+        int cropHeight = getDimensionFromUser("Enter crop height:", (int) imageView.getImage().getHeight());
+        if (cropHeight <= 0) return;
+
+        // Oříznutí obrázku
+        cropImage(cropWidth, cropHeight);
+    }
+
+    private int getDimensionFromUser(String prompt, int max) {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Crop Dimension");
+        dialog.setHeaderText(prompt);
+        dialog.setContentText("Max: " + max);
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()) {
+            try {
+                int value = Integer.parseInt(result.get());
+                if (value > 0 && value <= max) {
+                    return value;
+                } else {
+                    logToTextArea("Invalid value. Please enter a number between 1 and " + max);
+                }
+            } catch (NumberFormatException e) {
+                logToTextArea("Invalid input. Please enter an integer.");
+            }
+        }
+        return -1;
+    }
+
+    private void cropImage(int cropWidth, int cropHeight) {
+        Image originalImage = imageView.getImage();
+        int startX = (int) (originalImage.getWidth() - cropWidth) / 2;
+        int startY = (int) (originalImage.getHeight() - cropHeight) / 2;
+
+        // Vytvoření nového obrázku s požadovanými rozměry
+        WritableImage croppedImage = new WritableImage(cropWidth, cropHeight);
+        for (int y = 0; y < cropHeight; y++) {
+            for (int x = 0; x < cropWidth; x++) {
+                Color color = originalImage.getPixelReader().getColor(startX + x, startY + y);
+                croppedImage.getPixelWriter().setColor(x, y, color);
+            }
+        }
+
+        // Nastavení nového obrázku do ImageView
+        modifiedImage = croppedImage;
+        imageView.setImage(modifiedImage);
+        modifiedImageRadioButton.setSelected(true);
+    }
 }
+
+

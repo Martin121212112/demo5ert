@@ -26,15 +26,22 @@
                     </Menu>
                     <Menu text="Filters">
                         <items>
-                            <MenuItem text="Pixelizer" />
-                            <MenuItem text="identity" />
-                            <MenuItem text="treshold" />
-                            <MenuItem text="OldStyleFilter" />
+                            <MenuItem fx:id="menuPixelizer" onAction="#onPixelizerFilter" text="Pixelizer" />
                             <MenuItem onAction="#onBlackAndWhiteImage" text="BW filter" />
-                            <MenuItem text="Colorizer" />
                      <MenuItem onAction="#onNegativeImage" text="negative" />
                         </items>
                     </Menu>
+               <Menu text="Functions">
+                  <items>
+                     <MenuItem onAction="#onCropImage" text="Crop" />
+                  </items>
+               </Menu>
+               <Menu text="Zoom">
+                  <items>
+                     <MenuItem onAction="#enableZoom" text="Enable Zoom" />
+                     <MenuItem onAction="#resetZoom" text="Reset Zoom" />
+                  </items>
+               </Menu>
                     <Menu onShown="#showAboutDialog" text="About">
                   <items>
                             <MenuItem text="nikdytoneuvidis" />
@@ -56,7 +63,7 @@
                     <Button mnemonicParsing="false" onAction="#onEditMatrix" prefHeight="26.0" prefWidth="150.0" text="Edit Matrix" />
 
                     <ImageView fitHeight="96.0" fitWidth="104.0" pickOnBounds="true" preserveRatio="true" />
-                    <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" onAction="#onApplyMatrixFilter" />
+                    <Button mnemonicParsing="false" onAction="#onApplyMatrixFilter" prefHeight="26.0" prefWidth="150.0" text="Apply Matrix Filter" />
                     <TextArea fx:id="outputTextArea" editable="false" maxWidth="-Infinity" minHeight="168.0" minWidth="146.0" prefHeight="168.0" prefWidth="150.0">
                         <padding>
                             <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
