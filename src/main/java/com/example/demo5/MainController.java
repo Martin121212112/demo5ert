@@ -213,7 +213,7 @@ public class MainController {
         modifiedImage = chessboardImage;
         imageView.setImage(modifiedImage);
         modifiedImageRadioButton.setSelected(true);
-        logToTextArea("Generated chessboard with random colors and cell size: " + cellSize);
+        logToTextArea("Absolute random Image genereated");
     }
 
     /**
