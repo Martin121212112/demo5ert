@@ -199,7 +199,7 @@ public class MainController {
         modifiedImage = chessboardImage;
         imageView.setImage(modifiedImage);
         modifiedImageRadioButton.setSelected(true);
-        logToTextArea("Absolute random Image genereated");
+        logToTextArea("Absolutly random Image genereated");
     }
 
     /**
